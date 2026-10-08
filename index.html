@@ -59,7 +59,6 @@
   }
   .eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none}
 
-  /* the article title is the page's real subject */
   .subject{
     font-family:var(--serif);
     font-size:clamp(1.7rem,5.4vw,2.6rem);
@@ -139,14 +138,21 @@
   .spin{width:15px;height:15px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;flex:none}
   @keyframes sp{to{transform:rotate(360deg)}}
 
-  /* ---------- reply ---------- */
+  /* ---------- reply (mirrors language direction) ---------- */
   .reply{padding:clamp(20px,4vw,26px);border-top:1px solid var(--line-soft);background:var(--surface)}
+  .reply[dir=rtl]{text-align:right}
+  .reply[dir=rtl] input[type=text],
+  .reply[dir=rtl] textarea{text-align:right}
+  .reply[dir=rtl] input[type=text]::placeholder,
+  .reply[dir=rtl] textarea::placeholder{text-align:right}
   .reply h2{
     font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;
     color:var(--faint);margin:0 0 16px;font-weight:700;
   }
+  .reply[dir=rtl] h2{text-align:right}
   .field{margin-bottom:14px}
   .field label{display:block;font-size:.83rem;color:var(--muted);margin-bottom:7px;font-weight:500}
+  .reply[dir=rtl] .field label{text-align:right}
   .field label .opt{color:var(--faint);font-size:.78rem;font-weight:400}
   input[type=text],textarea{
     width:100%;background:var(--surface-2);color:var(--text);
@@ -161,9 +167,12 @@
   input::placeholder,textarea::placeholder{color:#616979}
   textarea{min-height:112px;resize:vertical;line-height:1.62}
   .meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:7px;font-size:.78rem;color:var(--faint)}
+  .reply[dir=rtl] .meta-row{flex-direction:row-reverse}
   .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;background:var(--surface-3);padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  .reply[dir=rtl] .kbd{direction:ltr;unicode-bidi:isolate}
 
   .actions{display:flex;align-items:center;gap:14px;margin-top:18px;flex-wrap:wrap}
+  .reply[dir=rtl] .actions{flex-direction:row-reverse}
   .send{
     appearance:none;border:0;background:var(--accent);color:#fff;
     font:inherit;font-size:.97rem;font-weight:600;
@@ -220,12 +229,8 @@
   <header class="mast">
     <span class="eyebrow"><span class="dot"></span>Limited time</span>
 
-    <!-- article title doubles as the page heading and the browser tab title -->
     <h1 class="subject" id="subject">&nbsp;</h1>
-    <p class="lede">
-      Choose your language below and read the piece. When you&rsquo;re done, leave a
-      sentence or two. I read every one of them myself.
-    </p>
+    <p class="lede" id="lede"></p>
 
     <div class="tabs" role="tablist" aria-label="Choose language">
       <button class="tab" role="tab" id="tab-arabic"  data-doc="arabic"  aria-selected="true"  aria-controls="stage">العربية</button>
@@ -258,35 +263,35 @@
       <canvas id="canvas"></canvas>
     </div>
 
-    <section class="reply">
-      <h2>Your opinion</h2>
+    <section class="reply" id="reply">
+      <h2 id="replyHead">&nbsp;</h2>
 
       <div class="field">
-        <label for="name">Your name <span class="opt">· optional</span></label>
-        <input type="text" id="name" placeholder="First name or nickname" maxlength="40" autocomplete="name" enterkeyhint="next">
+        <label for="name"><span id="nameLab"></span> <span class="opt" id="nameOpt"></span></label>
+        <input type="text" id="name" placeholder="" maxlength="40" autocomplete="name" enterkeyhint="next" dir="auto">
       </div>
 
       <div class="field">
-        <label for="opinion">Your thought</label>
-        <textarea id="opinion" placeholder="What stayed with you after reading?" maxlength="900"></textarea>
+        <label for="opinion" id="opinionLab"></label>
+        <textarea id="opinion" placeholder="" maxlength="900" dir="auto"></textarea>
         <div class="meta-row">
           <span id="count">0 / 900</span>
-          <span><span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to send</span>
+          <span id="hint"></span>
         </div>
       </div>
 
       <div class="actions">
-        <button class="send" id="send" disabled>Send opinion</button>
+        <button class="send" id="send" disabled>&nbsp;</button>
         <span class="msg-inline" id="inline"></span>
       </div>
     </section>
   </main>
 
   <footer class="foot">
-    <div><span class="t" id="footTitle"></span> &middot; this link stops working after a short while.</div>
+    <div><span class="t" id="footTitle"></span> &middot; <span id="footNote"></span></div>
     <a class="credit" href="#" onclick="return false;">
       <span class="mark">B</span>
-      <span>Made by <b>Basma Badran</b></span>
+      <span id="creditTxt"></span>
     </a>
   </footer>
 </div>
@@ -302,70 +307,99 @@ const DOCS = {
   arabic: {
     url: RAW + "arabic.pdf",
     title: "العنف ضد المرأة",
-    roman: "Violence Against Women",
-    rtl: true, lang: "ar", badge: "AR"
+    rtl: true, lang: "ar", badge: "AR",
+    ui: {
+      lede: "اختر لغتك واقرأ النص، ثم اترك لنا رأيك في سطر أو سطرين.",
+      replyHead: "رأيك",
+      nameLabel: "اسمك",
+      nameOpt: "اختياري",
+      namePh: "الاسم الأول أو اللقب",
+      opinionLabel: "رأيك في الموضوع",
+      opinionPh: "ما الذي بقي في ذهنك بعد القراءة؟",
+      hint: "للإرسال: Ctrl + Enter",
+      send: "إرسال",
+      sending: "جارٍ الإرسال…",
+      footNote: "هذا الرابط سيتوقف عن العمل بعد وقت قصير.",
+      credit: "صنعه <b>بسمه بدران</b>",
+      ok: "تم الإرسال، شكرًا لك.",
+      err: "تعذّر الإرسال. حاول مرة أخرى.",
+      empty: "اكتب رأيك أولًا."
+    }
   },
   english: {
     url: RAW + "english.pdf",
     title: "Rise of the Tomb Raider",
-    roman: "Rise of the Tomb Raider",
-    rtl: false, lang: "en", badge: "EN"
+    rtl: false, lang: "en", badge: "EN",
+    ui: {
+      lede: "Choose your language below and read the piece. When you’re done, leave a sentence or two. I read every one of them myself.",
+      replyHead: "Your opinion",
+      nameLabel: "Your name",
+      nameOpt: "· optional",
+      namePh: "First name or nickname",
+      opinionLabel: "Your thought",
+      opinionPh: "What stayed with you after reading?",
+      hint: "Ctrl + Enter to send",
+      send: "Send opinion",
+      sending: "Sending…",
+      footNote: "this link stops working after a short while.",
+      credit: "Made by <b>Basma Badran</b>",
+      ok: "Sent — thank you.",
+      err: "Couldn’t send. Please try once more.",
+      empty: "Write your thought first."
+    }
   }
 };
-const TOPIC = "op_7308b9f6385d44918d13";   /* live relay topic */
+const TOPIC = "op_7308b9f6385d44918d13";
 
 /* Optional but recommended: a Formspree endpoint (https://formspree.io).
-   Mail is the only channel that is genuinely private — nobody can read it but you.
    Leave empty to use the relay only. */
-const FORM_ENDPOINT = "";   /* e.g. "https://formspree.io/f/abcd1234" */
+const FORM_ENDPOINT = "";
 
 const $ = id => document.getElementById(id);
 const canvas = $("canvas"), ctx = canvas.getContext("2d");
 const msgBox = $("msg"), msgText = $("msgText"), stage = $("stage");
 
 let doc = null, page = 1, rendering = false, queued = null, curKey = "arabic";
-let zoom = 1;                                  /* multiplier on fit-to-width */
+let zoom = 1;
 const store = {
   get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
   set(k, v){ try { localStorage.setItem(k, v); } catch {} }
 };
 
-/* ---------- rendering: hi-DPI aware, so text stays crisp ---------- */
+/* ---------- rendering: hi-DPI aware ---------- */
 function dpr(){ return Math.min(3, window.devicePixelRatio || 1); }
 
 function paint(naturalW, naturalH){
   const avail = (stage.clientWidth || 640) - 20;
-  const fitScale = avail / naturalW;                 /* css px per pt at zoom 1 */
-  const cssScale = fitScale * zoom;
-  const renderScale = cssScale * dpr();              /* render at device pixels */
+  const cssScale = (avail / naturalW) * zoom;
+  const renderScale = cssScale * dpr();
 
   canvas.style.width  = Math.round(naturalW * cssScale) + "px";
   canvas.style.height = Math.round(naturalH * cssScale) + "px";
   canvas.width  = Math.max(1, Math.round(naturalW * renderScale));
   canvas.height = Math.max(1, Math.round(naturalH * renderScale));
-
   $("zVal").textContent = Math.round(zoom * 100) + "%";
 }
 
 function draw(n){
   rendering = true;
   doc.getPage(n).then(p => {
-    const vp1 = p.getViewport({ scale: 1 });        /* natural size in pt */
-    paint(vp1.width, vp1.height);
-    return p.render({ canvasContext: ctx, viewport: p.getViewport({ scale: cssScaleOf() }) }).promise;
+    const nat = p.getViewport({ scale: 1 }).width;
+    paint(nat, p.getViewport({ scale: 1 }).height);
+    return p.render({
+      canvasContext: ctx,
+      viewport: p.getViewport({ scale: cssScaleOf() })
+    }).promise;
   }).then(() => {
     rendering = false;
     if (queued !== null) { const q = queued; queued = null; draw(q); }
   }).catch(e => {
     rendering = false;
-    fail("This page wouldn’t render. Try reloading.", e);
+    fail(e && e.message ? e.message : "This page wouldn’t render.", e);
   });
 }
 
-/* render scale actually handed to pdf.js */
 function cssScaleOf(){
-  const avail = (stage.clientWidth || 640) - 20;
-  /* recover the scale we just committed to in paint() */
   const w = parseFloat(canvas.style.width);
   const nat = canvas.dataset.nat;
   return nat ? (w / parseFloat(nat)) * dpr() : 1;
@@ -386,26 +420,42 @@ function syncPager(){
   $("next").disabled = !doc || page >= doc.numPages;
 }
 
-/* ---------- document switching ---------- */
-function applyTitle(key){
-  const d = DOCS[key];
+/* ---------- apply language: titles, direction, all UI copy ---------- */
+function applyLang(key){
+  const d = DOCS[key], u = d.ui;
 
-  /* the article title becomes the visible subject, tab title and footer */
   const h = $("subject");
   h.textContent = d.title;
   if (d.rtl) h.setAttribute("dir", "rtl"); else h.removeAttribute("dir");
 
-  document.title = d.title;
+  $("lede").textContent = u.lede;
+
+  const r = $("reply");
+  if (d.rtl) r.setAttribute("dir", "rtl"); else r.removeAttribute("dir");
+
+  $("replyHead").textContent = u.replyHead;
+  $("nameLab").textContent  = u.nameLabel;
+  $("nameOpt").textContent  = u.nameOpt;
+  $("name").placeholder    = u.namePh;
+  $("opinionLab").textContent = u.opinionLabel;
+  $("opinion").placeholder  = u.opinionPh;
+  $("hint").innerHTML       = u.hint.replace(/(Ctrl|Enter)/g, '<span class="kbd">$1</span>');
+  $("send").textContent     = u.send;
+
   $("footTitle").textContent = d.title;
+  $("footNote").textContent  = u.footNote;
+  $("creditTxt").innerHTML   = u.credit;
+
+  document.title = d.title;
+  document.documentElement.lang = d.lang;
   $("docName").textContent = d.title;
   $("badge").textContent = d.badge;
-  document.documentElement.lang = d.lang;
 }
 
+/* ---------- document loading ---------- */
 function load(key){
   curKey = key;
-  const entry = DOCS[key];
-  applyTitle(key);
+  applyLang(key);
 
   msgText.textContent = "Loading document…";
   msgBox.classList.remove("gone");
@@ -415,7 +465,7 @@ function load(key){
   if (doc) { const d = doc; doc = null; try { d.destroy(); } catch(e){} }
   syncPager();
 
-  pdfjsLib.getDocument(entry.url).promise.then(d => {
+  pdfjsLib.getDocument(DOCS[key].url).promise.then(d => {
     doc = d;
     msgBox.classList.add("gone");
     stage.scrollTop = 0;
@@ -441,7 +491,6 @@ document.querySelectorAll(".tab").forEach(btn => {
 $("prev").addEventListener("click", () => { if (doc && page > 1){ page--; queue(page); syncPager(); } });
 $("next").addEventListener("click", () => { if (doc && page < doc.numPages){ page++; queue(page); syncPager(); } });
 
-/* ---------- zoom ---------- */
 function setZoom(z){
   zoom = Math.min(3, Math.max(.5, Math.round(z * 20) / 20));
   store.set("reader_zoom", String(zoom));
@@ -449,9 +498,8 @@ function setZoom(z){
 }
 $("zIn").addEventListener("click",  () => setZoom(zoom + 0.2));
 $("zOut").addEventListener("click", () => setZoom(zoom - 0.2));
-$("zVal").addEventListener("click", () => setZoom(1));   /* tap % to reset to fit */
+$("zVal").addEventListener("click", () => setZoom(1));
 
-/* ---------- paging by gesture / keyboard ---------- */
 let tx = 0, ty = 0;
 stage.addEventListener("touchstart", e => {
   tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
@@ -472,13 +520,11 @@ document.addEventListener("keydown", e => {
   if (e.key === "-") setZoom(zoom - 0.2);
 });
 
-/* re-render on resize / rotate so it re-fits and stays sharp */
 let rt;
 const refit = () => { clearTimeout(rt); rt = setTimeout(() => { if (doc) draw(page); }, 180); };
 window.addEventListener("resize", refit);
 window.addEventListener("orientationchange", refit);
 
-/* reading progress across pages */
 const seen = new Set([1]);
 function prog(){
   const pct = doc ? Math.round((seen.size / doc.numPages) * 100) : 0;
@@ -513,17 +559,21 @@ let sending = false;
 sendBtn.addEventListener("click", async () => {
   if (sending) return;
   const body = bodyEl.value.trim();
-  if (!body) { bodyEl.focus(); return; }
+  if (!body) {
+    flash(DOCS[curKey].ui.empty, false);
+    bodyEl.focus();
+    return;
+  }
 
   sending = true;
   sendBtn.disabled = true;
-  sendBtn.textContent = "Sending…";
+  sendBtn.textContent = DOCS[curKey].ui.sending;
 
   const name = nameEl.value.trim().slice(0, 40);
   const when = new Date().toLocaleString();
+  const u = DOCS[curKey].ui;
   const docTitle = DOCS[curKey].title;
 
-  /* structured so the owner inbox can parse fields reliably */
   const payload =
     "lang=" + curKey + "\n" +
     "name=" + (name || "Anonymous") + "\n" +
@@ -555,14 +605,14 @@ sendBtn.addEventListener("click", async () => {
     bodyEl.value = "";
     $("count").textContent = "0 / 900";
     validate();
-    flash("Sent — thank you.", true);
+    flash(u.ok, true);
   } catch (e) {
     console.error(e);
-    flash("Couldn’t send. Please try once more.", false);
+    flash(u.err, false);
     sendBtn.disabled = false;
   } finally {
     sending = false;
-    sendBtn.textContent = "Send opinion";
+    sendBtn.textContent = u.send;
   }
 });
 
