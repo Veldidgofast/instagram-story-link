@@ -31,7 +31,7 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       width: 100%;
-      max-width: 480px;
+      max-width: 500px;
       padding: 2rem;
     }
     h1 {
@@ -86,11 +86,19 @@
       overflow: hidden;
       margin: 1.5rem 0;
       background: #f9f9f9;
+      position: relative;
     }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    #pdfContainer canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--muted);
+      font-size: 1.2rem;
     }
     .footer {
       margin-top: 2rem;
@@ -111,7 +119,8 @@
     </select>
 
     <div id="pdfContainer">
-      <iframe id="pdfFrame" src=""></iframe>
+      <div class="loading" id="loading">Loading PDF...</div>
+      <canvas id="pdfCanvas"></canvas>
     </div>
 
     <label for="opinion">Your opinion (one or two sentences)</label>
@@ -125,20 +134,117 @@
     </div>
   </div>
 
+  <!-- PDF.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script>
-    const pdfBase = '$rawBase';
-    const texts = {
+    const pdfBase = 'https://raw.githubusercontent.com/Veldidgofast/instagram-story-link/main';
+    const pdfUrls = {
       arabic: pdfBase + '/arabic.pdf',
       english: pdfBase + '/english.pdf'
     };
 
     const select = document.getElementById('lang-select');
-    const pdfFrame = document.getElementById('pdfFrame');
-    function showPdf() {
-      pdfFrame.src = texts[select.value];
+    const loadingEl = document.getElementById('loading');
+    const canvas = document.getElementById('pdfCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let pdfDoc = null,
+        pageNum = 1,
+        pageRendering = false,
+        pageNumPending = null,
+        scale = 1.5;
+
+    /**
+     * Get page info from document, resize canvas accordingly, and render page.
+     * @param num Page number
+     */
+    function renderPage(num) {
+      pageRendering = true;
+      // Using promise to fetch the page
+      pdfDoc.getPage(num).then(function(page) {
+        var viewport = page.getViewport({scale: scale});
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page into canvas context
+        var renderContext = {
+          canvasContext: ctx,
+          viewport: viewport
+        };
+        var renderTask = page.render(renderContext);
+
+        // Wait for rendering to finish
+        renderTask.promise.then(function () {
+          pageRendering = false;
+          if (pageNumPending !== null) {
+            // New page rendering is pending
+            renderPage(pageNumPending);
+            pageNumPending = null;
+          }
+        });
+      });
     }
-    select.addEventListener('change', showPdf);
-    showPdf(); // initial load
+
+    /**
+     * If another page rendering in progress, waits until the rendering is
+     * finised. Otherwise, executes rendering immediately.
+     */
+    function queueRenderPage(num) {
+      if (pageRendering) {
+        pageNumPending = num;
+      } else {
+        renderPage(num);
+      }
+    }
+
+    /**
+     * Displays previous page.
+     */
+    function onPrevPage() {
+      if (pageNum <= 1) {
+        return;
+      }
+      pageNum--;
+      queueRenderPage(pageNum);
+    }
+    /**
+     * Displays next page.
+     */
+    function onNextPage() {
+      if (pageNum >= pdfDoc.numPages) {
+        return;
+      }
+      pageNum++;
+      queueRenderPage(pageNum);
+    }
+
+    /**
+     * Asynchronously downloads PDF.
+     */
+    function loadPdf(url) {
+      loadingEl.style.display = 'block';
+      // Using promise to fetch the PDF
+      pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
+        pdfDoc = pdfDoc_;
+        document.getElementById('pageCount').textContent = pdfDoc.numPages;
+        // Initial/first page rendering
+        renderPage(pageNum);
+        loadingEl.style.display = 'none';
+      }).catch(function (err) {
+        loadingEl.textContent = 'Error loading PDF';
+        console.error(err);
+      });
+    }
+
+    // Load initial PDF
+    function loadSelectedPdf() {
+      const url = pdfUrls[select.value];
+      loadPdf(url);
+      pageNum = 1;
+    }
+
+    select.addEventListener('change', loadSelectedPdf);
+    loadSelectedPdf(); // initial load
 
     const formEndpoint = 'https://formspree.io/f/your_form_id'; // ← REPLACE WITH YOUR Formspree endpoint
     const opinionBox = document.getElementById('opinion');
