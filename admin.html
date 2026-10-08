@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f13">
+<title>Opinions — owner view</title>
+<style>
+  :root{
+    --bg:#0d0f13; --surface:#161920; --surface-2:#1c2029; --surface-3:#232833;
+    --line:#282e3a; --line-soft:#20252f;
+    --text:#eceef2; --muted:#98a1b2; --faint:#6c7486;
+    --accent:#e0605a; --accent-soft:rgba(224,96,90,.13);
+    --ok:#4ec9a0; --ok-soft:rgba(78,201,160,.14);
+    --radius:16px; --radius-sm:11px;
+    --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,Roboto,Arial,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:var(--font);color:var(--text);line-height:1.6;
+    background:radial-gradient(1000px 520px at 100% -6%,#26191b 0%,transparent 54%),var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:clamp(20px,4vw,36px) clamp(14px,4vw,22px) 70px}
+
+  h1{font-family:var(--serif);font-size:clamp(1.5rem,4.6vw,1.95rem);margin:0 0 6px;font-weight:600;letter-spacing:-.01em}
+  .sub{margin:0 0 26px;color:var(--muted);font-size:.93rem}
+
+  /* gate */
+  .gate{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);padding:clamp(20px,4vw,26px);box-shadow:0 20px 50px -30px rgba(0,0,0,.9)}
+  .gate label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin-bottom:10px;font-weight:700}
+  input[type=password],input[type=search],select{
+    width:100%;background:var(--surface-2);color:var(--text);
+    border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:13px 15px;font:inherit;font-size:1rem;
+    transition:border-color .16s,box-shadow .16s;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  input::placeholder{color:#616979}
+  button{
+    appearance:none;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;
+    padding:12px 26px;border-radius:var(--radius-sm);cursor:pointer;transition:filter .16s,transform .1s;
+  }
+  button:hover{filter:brightness(1.09)}
+  button:active{transform:translateY(1px)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:500;padding:9px 15px;font-size:.86rem}
+  button.ghost:hover{color:var(--text);border-color:var(--faint);filter:none}
+  .err{color:var(--accent);font-size:.88rem;margin-top:10px;display:none}
+  .err.show{display:block}
+
+  /* toolbar */
+  .tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .tools input[type=search]{flex:1;min-width:170px;font-size:.94rem;padding:10px 14px}
+  .tools select{width:auto;flex:none;font-size:.88rem;padding:10px 12px;background:var(--surface-2);cursor:pointer}
+  .count{color:var(--muted);font-size:.88rem;margin-bottom:14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .count b{color:var(--text);font-weight:650}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;color:var(--ok);background:var(--ok-soft);padding:3px 10px;border-radius:999px;font-weight:650}
+  .live .d{width:5px;height:5px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* items */
+  .list{display:flex;flex-direction:column;gap:11px}
+  .item{background:var(--surface);border:1px solid var(--line-soft);border-radius:13px;padding:15px 17px;transition:border-color .16s}
+  .item:hover{border-color:var(--line)}
+  .meta{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+  .tag{font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:6px;flex:none}
+  .tag.arabic{background:var(--ok-soft);color:var(--ok)}
+  .tag.english{background:var(--accent-soft);color:var(--accent)}
+  .who{font-weight:600;font-size:.93rem}
+  .who.anonymous{color:var(--faint);font-weight:500;font-style:italic}
+  .when{color:var(--faint);font-size:.79rem;margin-left:auto;font-variant-numeric:tabular-nums}
+  .text{margin:0;white-space:pre-wrap;word-break:break-word;font-size:.97rem}
+  mark{background:rgba(224,96,90,.28);color:inherit;border-radius:3px;padding:0 2px}
+
+  .empty{color:var(--muted);text-align:center;padding:48px 22px;border:1px dashed var(--line);border-radius:var(--radius)}
+  .loading{color:var(--muted);text-align:center;padding:34px}
+  .note{color:var(--faint);font-size:.81rem;margin-top:26px;text-align:center}
+  .note a{color:var(--muted)}
+  .hidden{display:none !important}
+
+  @media (max-width:560px){
+    .when{margin-left:0;width:100%}
+    .tools select{flex:1}
+    button.ghost{flex:1}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Opinions inbox</h1>
+  <p class="sub">Private view of everything people sent through your story link.</p>
+
+  <div id="gate" class="gate">
+    <label for="pw">Passcode</label>
+    <input type="password" id="pw" placeholder="Enter passcode" autocomplete="current-password">
+    <button id="unlock">Unlock</button>
+    <div class="err" id="err">Wrong passcode.</div>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="tools">
+      <input type="search" id="q" placeholder="Search names and text…">
+      <select id="fLang">
+        <option value="">All languages</option>
+        <option value="arabic">العربية</option>
+        <option value="english">English</option>
+      </select>
+      <button class="ghost" id="copy">Copy</button>
+      <button class="ghost" id="lock">Lock</button>
+    </div>
+
+    <div class="count">
+      <span id="countText">Loading…</span>
+      <span class="live"><span class="d"></span>refreshes every 20s</span>
+    </div>
+
+    <div class="loading" id="loading">Loading submissions…</div>
+    <div class="list" id="list"></div>
+    <div class="empty hidden" id="empty">Nothing here yet. Opinions appear as soon as people send them.</div>
+  </div>
+
+  <p class="note"><a href="index.html">← back to the reading page</a></p>
+</div>
+
+<script>
+const TOPIC   = "op_13c344f653ee4cab";
+const PASSCODE = "d5a7ff8335dd";
+const KEY = "opinion_gate_ok";
+const $ = id => document.getElementById(id);
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const label = l => l === "arabic" ? "العربية" : "English";
+
+/* handles both the new structured payload and the old "[lang] body — time" format */
+function parse(raw, fallbackTime){
+  const m = /^\[([a-z]+)\]\s*([\s\S]*)$/.exec(raw || "");
+  if (m) {
+    const parts = m[2].split(/\n—\s/);
+    return {
+      lang: m[1],
+      name: "Anonymous",
+      when: parts.length > 1 ? parts.slice(1).join(" — ").trim() : "",
+      text: parts[0].trim()
+    };
+  }
+  const seg = (raw || "").split("\n---\n");
+  if (seg.length === 2) {
+    const head = {};
+    seg[0].split("\n").forEach(line => {
+      const i = line.indexOf("=");
+      if (i > 0) head[line.slice(0, i).trim().toLowerCase()] = line.slice(i + 1).trim();
+    });
+    return {
+      lang: head.lang || "english",
+      name: head.name || "Anonymous",
+      when: head.time || "",
+      text: seg[1].trim()
+    };
+  }
+  return { lang:"english", name:"Anonymous", when:fallbackTime || "", text:(raw || "").trim() };
+}
+
+let ALL = [];
+
+async function fetchAll(){
+  const res = await fetch("https://ntfy.sh/" + TOPIC + "/json?poll=1&since=30d", { cache:"no-store" });
+  if (!res.ok) throw new Error("poll failed: " + res.status);
+  const rows = res.text ? await res.text() : "";
+  return rows.split("\n").filter(Boolean).map(l => {
+    try { return JSON.parse(l); } catch { return null; }
+  })
+  .filter(r => r && r.event === "message")
+  .reverse()
+  .map(r => Object.assign(parse(r.message, new Date(r.time * 1000).toLocaleString()), { ts: r.time }));
+}
+
+function highlight(text, term){
+  const safe = esc(text);
+  if (!term) return safe;
+  const rx = new RegExp("(" + term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi");
+  return safe.replace(rx, "<mark>$1</mark>");
+}
+
+function render(){
+  const term = $("q").value.trim();
+  const lang = $("fLang").value;
+
+  const rows = ALL.filter(r =>
+    (!lang || r.lang === lang) &&
+    (!term || (r.name + " " + r.text).toLowerCase().includes(term.toLowerCase()))
+  );
+
+  const total = ALL.length;
+  $("countText").innerHTML = total === 0
+    ? "No submissions"
+    : "<b>" + rows.length + "</b> of <b>" + total + "</b> " + (total === 1 ? "opinion" : "opinions");
+
+  $("list").innerHTML = "";
+  $("empty").classList.toggle("hidden", rows.length !== 0);
+  $("loading").classList.add("hidden");
+
+  rows.forEach(r => {
+    const anon = !r.name || r.name.toLowerCase() === "anonymous";
+    const el = document.createElement("article");
+    el.className = "item";
+    el.innerHTML =
+      '<div class="meta">' +
+        '<span class="tag ' + esc(r.lang) + '">' + esc(label(r.lang)) + '</span>' +
+        '<span class="who' + (anon ? " anonymous" : "") + '">' + highlight(anon ? "Anonymous" : r.name, term) + '</span>' +
+        '<span class="when">' + esc(r.when) + '</span>' +
+      '</div>' +
+      '<p class="text">' + highlight(r.text, term) + '</p>';
+    $("list").appendChild(el);
+  });
+}
+
+async function load(){
+  try {
+    ALL = await fetchAll();
+    render();
+  } catch (e) {
+    console.error(e);
+    $("loading").textContent = "Couldn't load submissions. Tap Refresh, or check the topic still exists.";
+  }
+}
+
+function show(){ $("gate").classList.add("hidden"); $("panel").classList.remove("hidden"); load(); }
+
+$("unlock").addEventListener("click", () => {
+  if ($("pw").value.trim() !== PASSCODE) { $("err").classList.add("show"); $("pw").select(); return; }
+  sessionStorage.setItem(KEY, "1");
+  show();
+});
+$("pw").addEventListener("keydown", e => { if (e.key === "Enter") $("unlock").click(); });
+$("pw").addEventListener("input", () => $("err").classList.remove("show"));
+$("q").addEventListener("input", render);
+$("fLang").addEventListener("change", render);
+$("copy").addEventListener("click", async () => {
+  const text = ALL.map(r => "[" + r.lang + "] " + r.name + " — " + r.text).join("\n\n");
+  try { await navigator.clipboard.writeText(text); $("copy").textContent = "Copied"; }
+  catch { $("copy").textContent = "Blocked"; }
+  setTimeout(() => $("copy").textContent = "Copy", 1600);
+});
+$("lock").addEventListener("click", () => {
+  sessionStorage.removeItem(KEY);
+  $("panel").classList.add("hidden");
+  $("gate").classList.remove("hidden");
+  $("pw").value = "";
+});
+
+setInterval(() => { if (!$("panel").classList.contains("hidden")) load(); }, 20000);
+if (sessionStorage.getItem(KEY) === "1") show();
+</script>
+</body>
+</html>
