@@ -78,6 +78,7 @@
   .tag.english{background:var(--accent-soft);color:var(--accent)}
   .who{font-weight:600;font-size:.93rem}
   .who.anonymous{color:var(--faint);font-weight:500;font-style:italic}
+  .subj{font-size:.76rem;color:var(--faint);margin:-3px 0 8px}
   .when{color:var(--faint);font-size:.79rem;margin-left:auto;font-variant-numeric:tabular-nums}
   .text{margin:0;white-space:pre-wrap;word-break:break-word;font-size:.97rem}
   mark{background:rgba(224,96,90,.28);color:inherit;border-radius:3px;padding:0 2px}
@@ -175,7 +176,7 @@ function parse(raw, fallbackTime){
   if (legacy) {
     const parts = legacy[2].split(/\n—\s/);
     return {
-      lang: legacy[1], name: "Anonymous",
+      lang: legacy[1], name: "Anonymous", title: "",
       when: parts.length > 1 ? parts.slice(1).join(" — ").trim() : "",
       text: parts[0].trim()
     };
@@ -187,9 +188,15 @@ function parse(raw, fallbackTime){
       const i = line.indexOf("=");
       if (i > 0) head[line.slice(0, i).trim().toLowerCase()] = line.slice(i + 1).trim();
     });
-    return { lang: head.lang || "english", name: head.name || "Anonymous", when: head.time || "", text: seg[1].trim() };
+    return {
+      lang: head.lang || "english",
+      name: head.name || "Anonymous",
+      title: head.title || "",
+      when: head.time || "",
+      text: seg[1].trim()
+    };
   }
-  return { lang:"english", name:"Anonymous", when:fallbackTime || "", text:(raw || "").trim() };
+  return { lang:"english", name:"Anonymous", title:"", when:fallbackTime || "", text:(raw || "").trim() };
 }
 
 /* ---------- local archive so nothing disappears from this device ---------- */
@@ -217,7 +224,7 @@ async function fetchRelay(){
   .filter(r => r && r.event === "message")
   .map(r => {
     const p = parse(r.message, new Date(r.time * 1000).toLocaleString());
-    return { id: r.id, ts: r.time, lang: p.lang, name: p.name, when: p.when, text: p.text };
+    return { id: r.id, ts: r.time, lang: p.lang, name: p.name, title: p.title, when: p.when, text: p.text };
   });
 }
 
@@ -257,7 +264,7 @@ function render(){
 
   const rows = ALL.filter(r =>
     (!lang || r.lang === lang) &&
-    (!term || (r.name + " " + r.text).toLowerCase().includes(term.toLowerCase()))
+    (!term || (r.name + " " + r.title + " " + r.text).toLowerCase().includes(term.toLowerCase()))
   );
 
   $("countText").innerHTML = ALL.length === 0
@@ -278,6 +285,7 @@ function render(){
         '<span class="who' + (anon ? " anonymous" : "") + '">' + highlight(anon ? "Anonymous" : r.name, term) + '</span>' +
         '<span class="when">' + esc(r.when) + '</span>' +
       '</div>' +
+      (r.title ? '<div class="subj">on: ' + highlight(r.title, term) + '</div>' : '') +
       '<p class="text">' + highlight(r.text, term) + '</p>';
     $("list").appendChild(el);
   });
