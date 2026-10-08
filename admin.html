@@ -12,7 +12,6 @@
     --text:#eceef2; --muted:#98a1b2; --faint:#6c7486;
     --accent:#e0605a; --accent-soft:rgba(224,96,90,.13);
     --ok:#4ec9a0; --ok-soft:rgba(78,201,160,.14);
-    --warn:#e0b25a;
     --radius:16px; --radius-sm:11px;
     --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,Roboto,Arial,sans-serif;
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
@@ -24,13 +23,12 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:780px;margin:0 auto;padding:clamp(20px,4vw,36px) clamp(14px,4vw,22px) 70px}
-
   h1{font-family:var(--serif);font-size:clamp(1.5rem,4.6vw,1.95rem);margin:0 0 6px;font-weight:600;letter-spacing:-.01em}
   .sub{margin:0 0 26px;color:var(--muted);font-size:.93rem}
 
   .gate{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);padding:clamp(20px,4vw,26px);box-shadow:0 20px 50px -30px rgba(0,0,0,.9)}
   .gate label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin-bottom:10px;font-weight:700}
-  input[type=password],input[type=search],input[type=email],select{
+  input[type=password],input[type=search],input[type=text],select{
     width:100%;background:var(--surface-2);color:var(--text);
     border:1px solid var(--line);border-radius:var(--radius-sm);
     padding:13px 15px;font:inherit;font-size:1rem;
@@ -46,31 +44,19 @@
   button:active{transform:translateY(1px)}
   button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:500;padding:9px 15px;font-size:.86rem}
   button.ghost:hover{color:var(--text);border-color:var(--faint);filter:none}
-  button.ghost.on{color:var(--ok);border-color:rgba(78,201,160,.5)}
   .err{color:var(--accent);font-size:.88rem;margin-top:10px;display:none}
   .err.show{display:block}
   .okmsg{color:var(--ok);font-size:.88rem;margin-top:10px;display:none}
   .okmsg.show{display:block}
-
-  .banner{
-    display:flex;gap:11px;align-items:flex-start;
-    background:rgba(224,178,90,.09);border:1px solid rgba(224,178,90,.28);
-    color:#e8cf9f;border-radius:12px;padding:13px 15px;font-size:.87rem;margin-bottom:18px;
-  }
-  .banner .b{font-weight:700;color:var(--warn);flex:none}
 
   .tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
   .tools input[type=search]{flex:1;min-width:160px;font-size:.94rem;padding:10px 14px}
   .tools select{width:auto;flex:none;font-size:.88rem;padding:10px 12px;background:var(--surface-2);cursor:pointer}
   .count{color:var(--muted);font-size:.88rem;margin-bottom:14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
   .count b{color:var(--text);font-weight:650}
-  .live{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;color:var(--ok);background:var(--ok-soft);padding:3px 10px;border-radius:999px;font-weight:650}
-  .live .d{width:5px;height:5px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
   .list{display:flex;flex-direction:column;gap:11px}
-  .item{background:var(--surface);border:1px solid var(--line-soft);border-radius:13px;padding:15px 17px;transition:border-color .16s}
-  .item:hover{border-color:var(--line)}
+  .item{background:var(--surface);border:1px solid var(--line-soft);border-radius:13px;padding:15px 17px}
   .item.fresh{border-color:rgba(78,201,160,.45)}
   .meta{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap}
   .tag{font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:6px;flex:none}
@@ -78,8 +64,8 @@
   .tag.english{background:var(--accent-soft);color:var(--accent)}
   .who{font-weight:600;font-size:.93rem}
   .who.anonymous{color:var(--faint);font-weight:500;font-style:italic}
-  .subj{font-size:.76rem;color:var(--faint);margin:-3px 0 8px}
   .when{color:var(--faint);font-size:.79rem;margin-left:auto;font-variant-numeric:tabular-nums}
+  .subj{font-size:.76rem;color:var(--faint);margin:-3px 0 8px}
   .text{margin:0;white-space:pre-wrap;word-break:break-word;font-size:.97rem}
   mark{background:rgba(224,96,90,.28);color:inherit;border-radius:3px;padding:0 2px}
 
@@ -89,12 +75,23 @@
   .note a{color:var(--muted)}
   .hidden{display:none !important}
 
-  .sub-box{margin-top:26px;background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);padding:18px}
-  .sub-box h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin:0 0 6px;font-weight:700}
-  .sub-box p{margin:0 0 12px;font-size:.87rem;color:var(--muted)}
-  .sub-row{display:flex;gap:9px;flex-wrap:wrap}
-  .sub-row input[type=email]{flex:1;min-width:190px;padding:11px 14px;font-size:.94rem}
-  .sub-row button{padding:11px 20px;font-size:.92rem}
+  /* setup steps */
+  .setup{margin-top:26px;background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);padding:18px}
+  .setup h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.13em;color:var(--faint);margin:0 0 12px;font-weight:700}
+  .step{display:flex;gap:11px;margin-bottom:11px;font-size:.89rem;color:var(--muted);line-height:1.55}
+  .step:last-child{margin-bottom:0}
+  .step .n{
+    flex:none;width:20px;height:20px;border-radius:50%;background:var(--surface-3);color:var(--text);
+    font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px;
+  }
+  .step b{color:var(--text);font-weight:600}
+  .topic{
+    display:inline-flex;align-items:center;gap:8px;margin-top:4px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
+    padding:7px 11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.8rem;color:var(--text);
+  }
+  .topic button{padding:3px 9px;font-size:.72rem;border-radius:6px;background:var(--surface-3);color:var(--muted)}
+  .topic button:hover{color:var(--text);filter:none}
 
   @media (max-width:560px){
     .when{margin-left:0;width:100%}
@@ -107,7 +104,7 @@
 <body>
 <div class="wrap">
   <h1>Opinions inbox</h1>
-  <p class="sub">Private view of everything people sent through your story link.</p>
+  <p class="sub">Everything people sent through your story link.</p>
 
   <div id="gate" class="gate">
     <label for="pw">Passcode</label>
@@ -117,11 +114,6 @@
   </div>
 
   <div id="panel" class="hidden">
-    <div class="banner" id="warnBanner">
-      <span class="b">Heads up</span>
-      <span>The relay only keeps recent messages. Add your email below once and every new opinion will be forwarded to you permanently.</span>
-    </div>
-
     <div class="tools">
       <input type="search" id="q" placeholder="Search names and text…">
       <select id="fLang">
@@ -133,36 +125,29 @@
       <button class="ghost" id="lock">Lock</button>
     </div>
 
-    <div class="count">
-      <span id="countText">Loading…</span>
-      <span class="live"><span class="d"></span>auto-refresh</span>
-    </div>
+    <div class="count"><span id="countText">Loading…</span></div>
 
     <div class="loading" id="loading">Loading submissions…</div>
     <div class="list" id="list"></div>
     <div class="empty hidden" id="empty">Nothing here yet. Opinions appear as soon as people send them.</div>
 
-    <div class="sub-box">
-      <h3>Never miss one</h3>
-      <p>Forward every new opinion to your inbox, so nothing is lost when the relay clears.</p>
-      <div class="sub-row">
-        <input type="email" id="subEmail" placeholder="you@example.com" autocomplete="email">
-        <button id="subBtn">Forward to email</button>
-      </div>
-      <div class="okmsg" id="subOk">Done — new opinions will be emailed to you.</div>
-      <div class="err" id="subErr">That didn't work. Check the address and try again.</div>
+    <div class="setup">
+      <h3>Get them on Telegram (private, free)</h3>
+      <div class="step"><span class="n">1</span><span>Open Telegram and find <b>@ntfy_app</b> in the search box.</span></div>
+      <div class="step"><span class="n">2</span><span>Tap <b>Start</b>, then paste this topic and tap <b>Subscribe</b>:</span></div>
+      <div class="step"><span class="n">3</span><span>
+        <span class="topic"><span id="topicTxt">op_7308b9f6385d44918d13</span><button id="cpTopic">copy</button></span>
+      </span></div>
+      <div class="step"><span class="n">4</span><span>Done. Every opinion arrives as a Telegram message. Nobody else can see them.</span></div>
     </div>
   </div>
 
-  <p class="note">
-    Bookmarked? Keep this URL private — the page is unlisted, not password-protected.<br>
-    <a href="index.html">← back to the reading page</a>
-  </p>
+  <p class="note"><a href="index.html">← back to the reading page</a></p>
 </div>
 
 <script>
 const TOPIC    = "op_7308b9f6385d44918d13";
-const PASSCODE = "d5a7ff8335dd";
+const PASSCODE = "9aa68dbe6b58469d8a3f";
 const KEY      = "opinion_gate_ok";
 const CACHE    = "opinion_cache_v1";
 const $ = id => document.getElementById(id);
@@ -170,16 +155,13 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const label = l => l === "arabic" ? "العربية" : "English";
 
-/* handles the structured payload and the legacy "[lang] body — time" format */
 function parse(raw, fallbackTime){
   const legacy = /^\[([a-z]+)\]\s*([\s\S]*)$/.exec(raw || "");
   if (legacy) {
     const parts = legacy[2].split(/\n—\s/);
-    return {
-      lang: legacy[1], name: "Anonymous", title: "",
-      when: parts.length > 1 ? parts.slice(1).join(" — ").trim() : "",
-      text: parts[0].trim()
-    };
+    return { lang: legacy[1], name:"Anonymous", title:"",
+             when: parts.length > 1 ? parts.slice(1).join(" — ").trim() : "",
+             text: parts[0].trim() };
   }
   const seg = (raw || "").split("\n---\n");
   if (seg.length === 2) {
@@ -188,50 +170,35 @@ function parse(raw, fallbackTime){
       const i = line.indexOf("=");
       if (i > 0) head[line.slice(0, i).trim().toLowerCase()] = line.slice(i + 1).trim();
     });
-    return {
-      lang: head.lang || "english",
-      name: head.name || "Anonymous",
-      title: head.title || "",
-      when: head.time || "",
-      text: seg[1].trim()
-    };
+    return { lang: head.lang || "english", name: head.name || "Anonymous",
+             title: head.title || "", when: head.time || "", text: seg[1].trim() };
   }
   return { lang:"english", name:"Anonymous", title:"", when:fallbackTime || "", text:(raw || "").trim() };
 }
 
-/* ---------- local archive so nothing disappears from this device ---------- */
-function readCache(){
-  try { return JSON.parse(localStorage.getItem(CACHE)) || []; } catch { return []; }
-}
-function writeCache(rows){
-  try {
-    const trimmed = rows.slice(0, 300);
-    localStorage.setItem(CACHE, JSON.stringify(trimmed));
-  } catch {}
-}
+function readCache(){ try { return JSON.parse(localStorage.getItem(CACHE)) || []; } catch { return []; } }
+function writeCache(rows){ try { localStorage.setItem(CACHE, JSON.stringify(rows.slice(0, 300))); } catch {} }
 
 let ALL = [];
-let lastSeenIds = new Set(readCache().map(r => r.id));
+let lastSeen = new Set(readCache().map(r => r.id));
 
 async function fetchRelay(){
-  /* ntfy rejects since>12h, so "all" is the correct value here */
-  const res = await fetch("https://ntfy.sh/" + TOPIC + "/json?poll=1&since=all", { cache: "no-store" });
-  if (!res.ok) throw new Error("relay responded " + res.status);
-  const text = await res.text();
-  return text.split("\n").filter(Boolean).map(l => {
+  const res = await fetch("https://ntfy.sh/" + TOPIC + "/json?poll=1&since=all", { cache:"no-store" });
+  if (!res.ok) throw new Error("relay " + res.status);
+  return (await res.text()).split("\n").filter(Boolean).map(l => {
     try { return JSON.parse(l); } catch { return null; }
   })
   .filter(r => r && r.event === "message")
   .map(r => {
     const p = parse(r.message, new Date(r.time * 1000).toLocaleString());
-    return { id: r.id, ts: r.time, lang: p.lang, name: p.name, title: p.title, when: p.when, text: p.text };
+    return { id:r.id, ts:r.time, lang:p.lang, name:p.name, title:p.title, when:p.when, text:p.text };
   });
 }
 
 function merge(fresh){
   const byId = new Map();
-  readCache().forEach(r => byId.set(r.id, r));      /* archive first */
-  fresh.forEach(r => byId.set(r.id, r));             /* relay wins */
+  readCache().forEach(r => byId.set(r.id, r));
+  fresh.forEach(r => byId.set(r.id, r));
   return Array.from(byId.values()).sort((a, b) => b.ts - a.ts);
 }
 
@@ -261,7 +228,6 @@ function highlight(text, term){
 function render(){
   const term = $("q").value.trim();
   const lang = $("fLang").value;
-
   const rows = ALL.filter(r =>
     (!lang || r.lang === lang) &&
     (!term || (r.name + " " + r.title + " " + r.text).toLowerCase().includes(term.toLowerCase()))
@@ -276,9 +242,8 @@ function render(){
 
   rows.forEach(r => {
     const anon = !r.name || r.name.toLowerCase() === "anonymous";
-    const isFresh = !lastSeenIds.has(r.id);
     const el = document.createElement("article");
-    el.className = "item" + (isFresh ? " fresh" : "");
+    el.className = "item" + (lastSeen.has(r.id) ? "" : " fresh");
     el.innerHTML =
       '<div class="meta">' +
         '<span class="tag ' + esc(r.lang) + '">' + esc(label(r.lang)) + '</span>' +
@@ -290,7 +255,7 @@ function render(){
     $("list").appendChild(el);
   });
 
-  lastSeenIds = new Set(ALL.map(r => r.id));
+  lastSeen = new Set(ALL.map(r => r.id));
 }
 
 function show(){ $("gate").classList.add("hidden"); $("panel").classList.remove("hidden"); load(); }
@@ -306,7 +271,7 @@ $("q").addEventListener("input", render);
 $("fLang").addEventListener("change", render);
 
 $("copy").addEventListener("click", async () => {
-  const text = ALL.map(r => "[" + label(r.lang) + "] " + r.name + " (" + r.when + ")\n" + r.text).join("\n\n");
+  const text = ALL.map(r => "[" + label(r.lang) + "] " + r.name + " — " + r.text).join("\n\n");
   try { await navigator.clipboard.writeText(text); $("copy").textContent = "Copied"; }
   catch { $("copy").textContent = "Blocked"; }
   setTimeout(() => $("copy").textContent = "Copy", 1600);
@@ -319,39 +284,11 @@ $("lock").addEventListener("click", () => {
   $("pw").value = "";
 });
 
-/* email forwarding, so opinions survive the relay's retention window */
-$("subBtn").addEventListener("click", async () => {
-  const email = $("subEmail").value.trim();
-  $("subErr").classList.remove("show");
-  $("subOk").classList.remove("show");
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { $("subErr").classList.add("show"); return; }
-
-  $("subBtn").disabled = true;
-  try {
-    const res = await fetch("https://ntfy.sh/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic: TOPIC, email: email })
-    });
-    if (!res.ok) throw new Error("ntfy " + res.status);
-    localStorage.setItem("opinion_forward_email", email);
-    $("subOk").classList.add("show");
-    $("subBtn").textContent = "Subscribed";
-    $("subBtn").classList.add("on");
-  } catch (e) {
-    console.error(e);
-    $("subErr").classList.add("show");
-  } finally {
-    $("subBtn").disabled = false;
-  }
+$("cpTopic").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(TOPIC); $("cpTopic").textContent = "copied"; }
+  catch { $("cpTopic").textContent = "select it"; }
+  setTimeout(() => $("cpTopic").textContent = "copy", 1600);
 });
-
-const savedEmail = (() => { try { return localStorage.getItem("opinion_forward_email") || ""; } catch { return ""; } })();
-if (savedEmail) {
-  $("subEmail").value = savedEmail;
-  $("subBtn").textContent = "Subscribed";
-  $("subBtn").classList.add("on");
-}
 
 setInterval(() => { if (!$("panel").classList.contains("hidden")) load(); }, 20000);
 if (sessionStorage.getItem(KEY) === "1") show();
