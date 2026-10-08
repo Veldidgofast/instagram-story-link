@@ -111,6 +111,7 @@
     height:min(64vh,600px);
     display:flex;align-items:flex-start;justify-content:center;
     overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    touch-action:pan-y pinch-zoom;
   }
   .stage canvas{display:block;max-width:100%;height:auto}
   .stage .msg{
@@ -167,12 +168,14 @@
   @media (max-width:600px){
     .wrap{padding-left:12px;padding-right:12px}
     .tabs{width:100%;justify-content:center}
-    .tab{flex:1;text-align:center;padding:10px 12px}
+    .tab{flex:1;text-align:center;padding:11px 12px}
     .stage{height:56vh}
     .rbar{padding:8px 10px}
     .doc .name{font-size:.8rem}
+    .pager button{width:40px;height:40px}   /* comfortable thumb target */
     .actions{gap:10px}
-    .send{flex:1;padding:13px 20px}
+    .send{flex:1;padding:14px 20px}
+    textarea{min-height:130px}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms !important;transition-duration:.01ms !important}
