@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Read & Share Your Thought</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg-color: #fafafa;
+      --primary: #2c3e50;
+      --accent: #e74c3c;
+      --text: #333;
+      --muted: #777;
+      --radius: 8px;
+      --shadow: 0 2px 6px rgba(0,0,0,.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 1.75rem;
+      color: var(--primary);
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: .5rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    select,
+    textarea {
+      width: 100%;
+      padding: .75rem;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      resize: vertical;
+    }
+    textarea {
+      min-height: 100px;
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: .75rem 1.5rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .2s;
+      width: 100%;
+    }
+    button:hover { background: #c0392b; }
+    #thanks {
+      margin-top: 1rem;
+      color: #27ae60;
+      font-weight: 600;
+      display: none;
+      text-align: center;
+    }
+    #content {
+      white-space: pre-line;
+      line-height: 1.6;
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: var(--radius);
+      margin: 1.5rem 0;
+      border-left: 4px solid var(--accent);
+    }
+    .footer {
+      margin-top: 2rem;
+      font-size: .85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Read & Share</h1>
+
+    <label for="lang-select">Choose a language</label>
+    <select id="lang-select">
+      <option value="kurdish">Kurdish (Sorani)</option>
+      <option value="arabic">Arabic</option>
+      <option value="english">English</option>
+    </select>
+
+    <div id="content"></div>
+
+    <label for="opinion">Your opinion (one or two sentences)</label>
+    <textarea id="opinion" placeholder="What did you think after reading?"></textarea>
+    <button id="submit">Send opinion</button>
+
+    <p id="thanks">Thank you for sharing!</p>
+
+    <div class="footer">
+      Made with â¤ï¸ for your story â€“ link expires automatically.
+    </div>
+  </div>
+
+  <script>
+    /* ======================================================
+       ðŸ‘‰ PASTE YOUR THREE PARAGRAPHS / ARTICLES HERE ðŸ‘ˆ
+       Replace the placeholder text inside each language key.
+       Keep the backâ€‘ticks (`) and do NOT break the string with
+       a line that starts with a backâ€‘tick unless you escape it.
+       ====================================================== */
+    const texts = {
+      kurdish: `
+        // â† PASS YOUR SORANI TEXT HERE
+        Example: Ø¦Û•Ù… Ù¾Ø§Ø±Ø§Ú¯Ø±Ø§ÙÛ• Ø¨Û† dÃ©moonÛ•â€¦
+      `,
+      arabic: `
+        // â† PASS YOUR ARABIC TEXT HERE
+        Example: Ù‡Ø°Ù‡ ÙÙ‚Ø±Ø© ØªØ¬Ø±ÙŠØ¨ÙŠØ©â€¦
+      `,
+      english: `
+        // â† PASS YOUR ENGLISH TEXT HERE
+        Example: This is a sample paragraphâ€¦
+      `
+    };
+
+    // ======================================================
+    // DO NOT EDIT BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
+    // ======================================================
+    const select = document.getElementById('lang-select');
+    const contentDiv = document.getElementById('content');
+    function showLang() {
+      // Trim to remove leading/trailing newlines from the template literal
+      contentDiv.textContent = texts[select.value].trim();
+    }
+    select.addEventListener('change', showLang);
+    showLang(); // initial display
+
+    const formEndpoint = 'https://formspree.io/f/your_form_id'; // â† REPLACE WITH YOUR Formspree endpoint
+    const opinionBox = document.getElementById('opinion');
+    const submitBtn = document.getElementById('submit');
+    const thanksMsg = document.getElementById('thanks');
+
+    submitBtn.addEventListener('click', async () => {
+      const opinion = opinionBox.value.trim();
+      if (!opinion) return alert('Please write something first.');
+
+      try {
+        const resp = await fetch(formEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            language: select.value,
+            opinion: opinion
+          })
+        });
+        if (resp.ok) {
+          opinionBox.value = '';
+          thanksMsg.style.display = 'block';
+          setTimeout(() => thanksMsg.style.display = 'none', 3000);
+        } else {
+          throw new Error('Network error');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Failed to send. Please try again later.');
+      }
+    });
+  </script>
+</body>
+</html>
