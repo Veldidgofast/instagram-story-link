@@ -240,8 +240,7 @@
   </main>
 
   <footer class="foot">
-    This link stops working after a short while.<br>
-    <a href="admin.html">Owner access</a>
+    This link stops working after a short while.
   </footer>
 </div>
 
@@ -256,7 +255,12 @@ const DOCS = {
   arabic:  { url: RAW + "arabic.pdf",  name: "العنف ضد المرأة",        pages: 3 },
   english: { url: RAW + "english.pdf", name: "Rise of the Tomb Raider", pages: 2 }
 };
-const TOPIC = "op_13c344f653ee4cab";   /* write-only relay topic */
+const TOPIC = "op_7308b9f6385d44918d13";   /* live relay topic */
+
+/* Optional but recommended: a Formspree endpoint (https://formspree.io).
+   Mail is the only channel that is genuinely private — nobody can read it but you.
+   Leave empty to use the relay only. */
+const FORM_ENDPOINT = "";   /* e.g. "https://formspree.io/f/abcd1234" */
 
 const $ = id => document.getElementById(id);
 const canvas = $("canvas"), ctx = canvas.getContext("2d");
@@ -427,12 +431,25 @@ sendBtn.addEventListener("click", async () => {
     "---\n" + body;
 
   try {
-    const res = await fetch("https://ntfy.sh/" + TOPIC, {
-      method: "POST",
-      headers: { "Title": "Opinion", "Priority": "3", "Tags": "speech_balloon" },
-      body: payload
-    });
-    if (!res.ok) throw new Error("relay " + res.status);
+    const jobs = [
+      fetch("https://ntfy.sh/" + TOPIC, {
+        method: "POST",
+        headers: { "Title": "Opinion", "Priority": "3", "Tags": "speech_balloon" },
+        body: payload
+      })
+    ];
+    if (FORM_ENDPOINT) {
+      jobs.push(fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ language: curKey, name: name || "Anonymous", opinion: body })
+      }));
+    }
+
+    const results = await Promise.allSettled(jobs);
+    if (results.every(r => r.status === "rejected" || !r.value.ok)) {
+      throw new Error("all delivery channels failed");
+    }
 
     bodyEl.value = "";
     $("count").textContent = "0 / 900";
