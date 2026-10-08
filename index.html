@@ -31,7 +31,7 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       width: 100%;
-      max-width: 420px;
+      max-width: 480px;
       padding: 2rem;
     }
     h1 {
@@ -78,14 +78,19 @@
       display: none;
       text-align: center;
     }
-    #content {
-      white-space: pre-line;
-      line-height: 1.6;
-      background: #f9f9f9;
-      padding: 1rem;
+    #pdfContainer {
+      width: 100%;
+      height: 500px;
+      border: 1px solid #ddd;
       border-radius: var(--radius);
+      overflow: hidden;
       margin: 1.5rem 0;
-      border-left: 4px solid var(--accent);
+      background: #f9f9f9;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
     .footer {
       margin-top: 2rem;
@@ -101,12 +106,13 @@
 
     <label for="lang-select">Choose a language</label>
     <select id="lang-select">
-      <option value="kurdish">Kurdish (Sorani)</option>
       <option value="arabic">Arabic</option>
       <option value="english">English</option>
     </select>
 
-    <div id="content"></div>
+    <div id="pdfContainer">
+      <iframe id="pdfFrame" src=""></iframe>
+    </div>
 
     <label for="opinion">Your opinion (one or two sentences)</label>
     <textarea id="opinion" placeholder="What did you think after reading?"></textarea>
@@ -115,45 +121,26 @@
     <p id="thanks">Thank you for sharing!</p>
 
     <div class="footer">
-      Made with â¤ï¸ for your story â€“ link expires automatically.
+      Made with ❤️ for your story – link expires automatically.
     </div>
   </div>
 
   <script>
-    /* ======================================================
-       ðŸ‘‰ PASTE YOUR THREE PARAGRAPHS / ARTICLES HERE ðŸ‘ˆ
-       Replace the placeholder text inside each language key.
-       Keep the backâ€‘ticks (`) and do NOT break the string with
-       a line that starts with a backâ€‘tick unless you escape it.
-       ====================================================== */
+    const pdfBase = '$rawBase';
     const texts = {
-      kurdish: `
-        // â† PASS YOUR SORANI TEXT HERE
-        Example: Ø¦Û•Ù… Ù¾Ø§Ø±Ø§Ú¯Ø±Ø§ÙÛ• Ø¨Û† dÃ©moonÛ•â€¦
-      `,
-      arabic: `
-        // â† PASS YOUR ARABIC TEXT HERE
-        Example: Ù‡Ø°Ù‡ ÙÙ‚Ø±Ø© ØªØ¬Ø±ÙŠØ¨ÙŠØ©â€¦
-      `,
-      english: `
-        // â† PASS YOUR ENGLISH TEXT HERE
-        Example: This is a sample paragraphâ€¦
-      `
+      arabic: pdfBase + '/arabic.pdf',
+      english: pdfBase + '/english.pdf'
     };
 
-    // ======================================================
-    // DO NOT EDIT BELOW UNLESS YOU KNOW WHAT YOU'RE DOING
-    // ======================================================
     const select = document.getElementById('lang-select');
-    const contentDiv = document.getElementById('content');
-    function showLang() {
-      // Trim to remove leading/trailing newlines from the template literal
-      contentDiv.textContent = texts[select.value].trim();
+    const pdfFrame = document.getElementById('pdfFrame');
+    function showPdf() {
+      pdfFrame.src = texts[select.value];
     }
-    select.addEventListener('change', showLang);
-    showLang(); // initial display
+    select.addEventListener('change', showPdf);
+    showPdf(); // initial load
 
-    const formEndpoint = 'https://formspree.io/f/your_form_id'; // â† REPLACE WITH YOUR Formspree endpoint
+    const formEndpoint = 'https://formspree.io/f/your_form_id'; // ← REPLACE WITH YOUR Formspree endpoint
     const opinionBox = document.getElementById('opinion');
     const submitBtn = document.getElementById('submit');
     const thanksMsg = document.getElementById('thanks');
