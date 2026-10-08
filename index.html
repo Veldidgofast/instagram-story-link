@@ -1,281 +1,462 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Read & Share Your Thought</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --bg-color: #fafafa;
-      --primary: #2c3e50;
-      --accent: #e74c3c;
-      --text: #333;
-      --muted: #777;
-      --radius: 8px;
-      --shadow: 0 2px 6px rgba(0,0,0,.1);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg-color);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 1rem;
-    }
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      width: 100%;
-      max-width: 500px;
-      padding: 2rem;
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 1.75rem;
-      color: var(--primary);
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-bottom: .5rem;
-      font-weight: 600;
-      color: var(--muted);
-    }
-    select,
-    textarea {
-      width: 100%;
-      padding: .75rem;
-      border: 1px solid #ddd;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-      resize: vertical;
-    }
-    textarea {
-      min-height: 100px;
-    }
-    button {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: .75rem 1.5rem;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background .2s;
-      width: 100%;
-    }
-    button:hover { background: #c0392b; }
-    #thanks {
-      margin-top: 1rem;
-      color: #27ae60;
-      font-weight: 600;
-      display: none;
-      text-align: center;
-    }
-    #pdfContainer {
-      width: 100%;
-      height: 500px;
-      border: 1px solid #ddd;
-      border-radius: var(--radius);
-      overflow: hidden;
-      margin: 1.5rem 0;
-      background: #f9f9f9;
-      position: relative;
-    }
-    #pdfContainer canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: var(--muted);
-      font-size: 1.2rem;
-    }
-    .footer {
-      margin-top: 2rem;
-      font-size: .85rem;
-      color: var(--muted);
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>Read & Share Your Thought</title>
+<style>
+  :root{
+    --bg:#0d0f13;
+    --surface:#161920;
+    --surface-2:#1c2029;
+    --surface-3:#232833;
+    --line:#282e3a;
+    --line-soft:#20252f;
+    --text:#eceef2;
+    --muted:#98a1b2;
+    --faint:#6c7486;
+    --accent:#e0605a;
+    --accent-hi:#ec7a74;
+    --accent-soft:rgba(224,96,90,.13);
+    --ok:#4ec9a0;
+    --radius:16px;
+    --radius-sm:11px;
+    --shadow-lg:0 24px 60px -28px rgba(0,0,0,.9);
+    --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--text);
+    line-height:1.6;
+    background:
+      radial-gradient(1200px 620px at 8% -12%, #1b2333 0%, transparent 58%),
+      radial-gradient(1000px 520px at 102% -4%, #26191b 0%, transparent 52%),
+      var(--bg);
+    background-attachment:fixed;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* reading progress */
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
+    background:linear-gradient(90deg,var(--accent),var(--accent-hi));transition:width .12s linear}
+
+  .wrap{max-width:780px;margin:0 auto;padding:clamp(20px,4vw,34px) clamp(14px,4vw,22px) calc(90px + var(--safe-b))}
+
+  /* ---------- masthead ---------- */
+  .mast{margin-bottom:20px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;font-weight:700;
+    color:var(--accent);background:var(--accent-soft);
+    border:1px solid rgba(224,96,90,.22);
+    padding:5px 12px;border-radius:999px;margin-bottom:14px;
+  }
+  .eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none}
+  h1{
+    font-family:var(--serif);
+    font-size:clamp(1.72rem,5.2vw,2.55rem);
+    line-height:1.14;margin:0 0 10px;font-weight:600;letter-spacing:-.015em;
+  }
+  .lede{margin:0;color:var(--muted);font-size:clamp(.95rem,2.6vw,1.02rem);max-width:56ch}
+
+  /* ---------- language tabs ---------- */
+  .tabs{
+    display:inline-flex;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:999px;padding:4px;gap:4px;margin:20px 0 18px;
+    position:sticky;top:0;z-index:20;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  }
+  .tab{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    font:inherit;font-size:.92rem;font-weight:550;
+    padding:9px 20px;border-radius:999px;cursor:pointer;
+    transition:background .2s,color .2s;
+  }
+  .tab:hover{color:var(--text)}
+  .tab[aria-selected="true"]{background:var(--accent);color:#fff;box-shadow:0 3px 14px -4px rgba(224,96,90,.6)}
+
+  /* ---------- reader ---------- */
+  .reader{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg)}
+  .rbar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 12px;border-bottom:1px solid var(--line-soft);background:var(--surface-2);
+  }
+  .doc{display:flex;align-items:center;gap:9px;min-width:0}
+  .doc .badge{
+    flex:none;font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 8px;border-radius:6px;background:var(--surface-3);color:var(--muted);
+  }
+  .doc .name{font-size:.86rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pager{display:flex;align-items:center;gap:5px;flex:none}
+  .pager button{
+    appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);
+    width:34px;height:34px;border-radius:9px;font-size:1.05rem;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s,border-color .15s,transform .1s;
+  }
+  .pager button:hover:not(:disabled){background:var(--accent-soft);border-color:var(--accent)}
+  .pager button:active:not(:disabled){transform:scale(.93)}
+  .pager button:disabled{opacity:.3;cursor:not-allowed}
+  .pc{font-size:.8rem;color:var(--muted);min-width:58px;text-align:center;font-variant-numeric:tabular-nums}
+
+  .stage{
+    position:relative;background:#0a0c10;
+    height:min(64vh,600px);
+    display:flex;align-items:flex-start;justify-content:center;
+    overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+  .stage canvas{display:block;max-width:100%;height:auto}
+  .stage .msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:.93rem;text-align:center;padding:28px;gap:10px;
+  }
+  .stage .msg.gone{display:none}
+  .spin{width:15px;height:15px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;flex:none}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* ---------- reply ---------- */
+  .reply{padding:clamp(20px,4vw,26px);border-top:1px solid var(--line-soft);background:var(--surface)}
+  .reply h2{
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--faint);margin:0 0 16px;font-weight:700;
+  }
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.83rem;color:var(--muted);margin-bottom:7px;font-weight:500}
+  .field label .opt{color:var(--faint);font-size:.78rem;font-weight:400}
+  input[type=text],textarea{
+    width:100%;background:var(--surface-2);color:var(--text);
+    border:1px solid var(--line);border-radius:var(--radius-sm);
+    padding:13px 15px;font:inherit;font-size:1rem;
+    transition:border-color .16s,box-shadow .16s,background .16s;
+  }
+  input[type=text]:focus,textarea:focus{
+    outline:none;border-color:var(--accent);background:var(--surface-3);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  input::placeholder,textarea::placeholder{color:#616979}
+  textarea{min-height:112px;resize:vertical;line-height:1.62}
+  .meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:7px;font-size:.78rem;color:var(--faint)}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;background:var(--surface-3);padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+
+  .actions{display:flex;align-items:center;gap:14px;margin-top:18px;flex-wrap:wrap}
+  .send{
+    appearance:none;border:0;background:var(--accent);color:#fff;
+    font:inherit;font-size:.97rem;font-weight:600;
+    padding:12px 28px;border-radius:var(--radius-sm);cursor:pointer;
+    transition:filter .16s,transform .1s,opacity .16s;
+  }
+  .send:hover:not(:disabled){filter:brightness(1.09)}
+  .send:active:not(:disabled){transform:translateY(1px)}
+  .send:disabled{opacity:.45;cursor:not-allowed}
+  .msg-inline{font-size:.88rem;display:none}
+  .msg-inline.show{display:inline}
+  .msg-inline.good{color:var(--ok)}
+  .msg-inline.bad{color:var(--accent)}
+
+  footer.foot{margin-top:24px;text-align:center;color:var(--faint);font-size:.8rem;line-height:1.9}
+  footer.foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid transparent}
+  footer.foot a:hover{color:var(--text);border-bottom-color:var(--line)}
+
+  @media (max-width:600px){
+    .wrap{padding-left:12px;padding-right:12px}
+    .tabs{width:100%;justify-content:center}
+    .tab{flex:1;text-align:center;padding:10px 12px}
+    .stage{height:56vh}
+    .rbar{padding:8px 10px}
+    .doc .name{font-size:.8rem}
+    .actions{gap:10px}
+    .send{flex:1;padding:13px 20px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Read & Share</h1>
+<div class="progress" id="prog"></div>
 
-    <label for="lang-select">Choose a language</label>
-    <select id="lang-select">
-      <option value="arabic">Arabic</option>
-      <option value="english">English</option>
-    </select>
+<div class="wrap">
+  <header class="mast">
+    <span class="eyebrow"><span class="dot"></span>Limited time</span>
+    <h1>Read it, then tell me honestly what you think.</h1>
+    <p class="lede">
+      Choose your language below and read the piece. When you&rsquo;re done, leave a
+      sentence or two — I read every one of them myself.
+    </p>
 
-    <div id="pdfContainer">
-      <div class="loading" id="loading">Loading PDF...</div>
-      <canvas id="pdfCanvas"></canvas>
+    <div class="tabs" role="tablist" aria-label="Choose language">
+      <button class="tab" role="tab" id="tab-arabic"  data-doc="arabic"  aria-selected="true"  aria-controls="stage">العربية</button>
+      <button class="tab" role="tab" id="tab-english" data-doc="english" aria-selected="false" aria-controls="stage">English</button>
+    </div>
+  </header>
+
+  <main class="reader">
+    <div class="rbar">
+      <div class="doc">
+        <span class="badge" id="badge">PDF</span>
+        <span class="name" id="docName">Preparing…</span>
+      </div>
+      <div class="pager">
+        <button id="prev" aria-label="Previous page" disabled>&lsaquo;</button>
+        <span class="pc" id="pc">– / –</span>
+        <button id="next" aria-label="Next page" disabled>&rsaquo;</button>
+      </div>
     </div>
 
-    <label for="opinion">Your opinion (one or two sentences)</label>
-    <textarea id="opinion" placeholder="What did you think after reading?"></textarea>
-    <button id="submit">Send opinion</button>
-
-    <p id="thanks">Thank you for sharing!</p>
-
-    <div class="footer">
-      Made with ❤️ for your story – link expires automatically.
+    <div class="stage" id="stage">
+      <div class="msg" id="msg"><span class="spin"></span><span id="msgText">Loading document…</span></div>
+      <canvas id="canvas"></canvas>
     </div>
-  </div>
 
-  <!-- PDF.js from CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script>
-    const pdfBase = 'https://raw.githubusercontent.com/Veldidgofast/instagram-story-link/main';
-    const pdfUrls = {
-      arabic: pdfBase + '/arabic.pdf',
-      english: pdfBase + '/english.pdf'
-    };
+    <section class="reply">
+      <h2>Your opinion</h2>
 
-    const select = document.getElementById('lang-select');
-    const loadingEl = document.getElementById('loading');
-    const canvas = document.getElementById('pdfCanvas');
-    const ctx = canvas.getContext('2d');
+      <div class="field">
+        <label for="name">Your name <span class="opt">· optional</span></label>
+        <input type="text" id="name" placeholder="First name or nickname" maxlength="40" autocomplete="name" enterkeyhint="next">
+      </div>
 
-    let pdfDoc = null,
-        pageNum = 1,
-        pageRendering = false,
-        pageNumPending = null,
-        scale = 1.5;
+      <div class="field">
+        <label for="opinion">Your thought</label>
+        <textarea id="opinion" placeholder="What stayed with you after reading?" maxlength="900"></textarea>
+        <div class="meta-row">
+          <span id="count">0 / 900</span>
+          <span><span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to send</span>
+        </div>
+      </div>
 
-    /**
-     * Get page info from document, resize canvas accordingly, and render page.
-     * @param num Page number
-     */
-    function renderPage(num) {
-      pageRendering = true;
-      // Using promise to fetch the page
-      pdfDoc.getPage(num).then(function(page) {
-        var viewport = page.getViewport({scale: scale});
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+      <div class="actions">
+        <button class="send" id="send" disabled>Send opinion</button>
+        <span class="msg-inline" id="inline"></span>
+      </div>
+    </section>
+  </main>
 
-        // Render PDF page into canvas context
-        var renderContext = {
-          canvasContext: ctx,
-          viewport: viewport
-        };
-        var renderTask = page.render(renderContext);
+  <footer class="foot">
+    This link stops working after a short while.<br>
+    <a href="admin.html">Owner access</a>
+  </footer>
+</div>
 
-        // Wait for rendering to finish
-        renderTask.promise.then(function () {
-          pageRendering = false;
-          if (pageNumPending !== null) {
-            // New page rendering is pending
-            renderPage(pageNumPending);
-            pageNumPending = null;
-          }
-        });
-      });
-    }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+/* PDF.js worker — omitting this makes every render fail */
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
-    /**
-     * If another page rendering in progress, waits until the rendering is
-     * finised. Otherwise, executes rendering immediately.
-     */
-    function queueRenderPage(num) {
-      if (pageRendering) {
-        pageNumPending = num;
-      } else {
-        renderPage(num);
-      }
-    }
+const RAW = "https://raw.githubusercontent.com/Veldidgofast/instagram-story-link/main/";
+const DOCS = {
+  arabic:  { url: RAW + "arabic.pdf",  name: "العنف ضد المرأة",        pages: 3 },
+  english: { url: RAW + "english.pdf", name: "Rise of the Tomb Raider", pages: 2 }
+};
+const TOPIC = "op_13c344f653ee4cab";   /* write-only relay topic */
 
-    /**
-     * Displays previous page.
-     */
-    function onPrevPage() {
-      if (pageNum <= 1) {
-        return;
-      }
-      pageNum--;
-      queueRenderPage(pageNum);
-    }
-    /**
-     * Displays next page.
-     */
-    function onNextPage() {
-      if (pageNum >= pdfDoc.numPages) {
-        return;
-      }
-      pageNum++;
-      queueRenderPage(pageNum);
-    }
+const $ = id => document.getElementById(id);
+const canvas = $("canvas"), ctx = canvas.getContext("2d");
+const msgBox = $("msg"), msgText = $("msgText");
 
-    /**
-     * Asynchronously downloads PDF.
-     */
-    function loadPdf(url) {
-      loadingEl.style.display = 'block';
-      // Using promise to fetch the PDF
-      pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
-        pdfDoc = pdfDoc_;
-        document.getElementById('pageCount').textContent = pdfDoc.numPages;
-        // Initial/first page rendering
-        renderPage(pageNum);
-        loadingEl.style.display = 'none';
-      }).catch(function (err) {
-        loadingEl.textContent = 'Error loading PDF';
-        console.error(err);
-      });
-    }
+let doc = null, page = 1, rendering = false, queued = null, curKey = "arabic";
 
-    // Load initial PDF
-    function loadSelectedPdf() {
-      const url = pdfUrls[select.value];
-      loadPdf(url);
-      pageNum = 1;
-    }
+/* ---------- rendering ---------- */
+function widthScale(){
+  const avail = ($("stage").clientWidth || 600) - 20;
+  return avail > 0 ? avail / 595 : 1.3;   /* 595pt = A4 @72dpi */
+}
 
-    select.addEventListener('change', loadSelectedPdf);
-    loadSelectedPdf(); // initial load
+function draw(n){
+  rendering = true;
+  doc.getPage(n).then(p => {
+    const natural = p.getViewport({ scale: 1 }).width;   /* real page width in pt */
+    const scale = Math.min(2.4, Math.max(.4, widthScale() * (595 / natural)));
+    const vp = p.getViewport({ scale });
+    canvas.width = vp.width;
+    canvas.height = vp.height;
+    return p.render({ canvasContext: ctx, viewport: vp }).promise;
+  }).then(() => {
+    rendering = false;
+    if (queued !== null) { const q = queued; queued = null; draw(q); }
+  }).catch(e => {
+    rendering = false;
+    fail("This page wouldn’t render. Try reloading.", e);
+  });
+}
 
-    const formEndpoint = 'https://formspree.io/f/your_form_id'; // ← REPLACE WITH YOUR Formspree endpoint
-    const opinionBox = document.getElementById('opinion');
-    const submitBtn = document.getElementById('submit');
-    const thanksMsg = document.getElementById('thanks');
+function queue(n){ rendering ? (queued = n) : draw(n); }
 
-    submitBtn.addEventListener('click', async () => {
-      const opinion = opinionBox.value.trim();
-      if (!opinion) return alert('Please write something first.');
+function fail(text, err){
+  msgText.textContent = text;
+  msgBox.classList.remove("gone");
+  canvas.style.display = "none";
+  if (err) console.error(err);
+}
 
-      try {
-        const resp = await fetch(formEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            language: select.value,
-            opinion: opinion
-          })
-        });
-        if (resp.ok) {
-          opinionBox.value = '';
-          thanksMsg.style.display = 'block';
-          setTimeout(() => thanksMsg.style.display = 'none', 3000);
-        } else {
-          throw new Error('Network error');
-        }
-      } catch (e) {
-        console.error(e);
-        alert('Failed to send. Please try again later.');
-      }
+function syncPager(){
+  const total = doc ? doc.numPages : "–";
+  $("pc").textContent = doc ? (page + " / " + total) : "– / –";
+  $("prev").disabled = !doc || page <= 1;
+  $("next").disabled = !doc || page >= doc.numPages;
+}
+
+function load(key){
+  curKey = key;
+  const entry = DOCS[key];
+  $("docName").textContent = entry.name;
+  $("badge").textContent = key === "arabic" ? "AR" : "EN";
+  msgText.textContent = "Loading document…";
+  msgBox.classList.remove("gone");
+  canvas.style.display = "block";
+  page = 1;
+
+  if (doc) { const d = doc; doc = null; try { d.destroy(); } catch(e){} }
+  syncPager();
+
+  pdfjsLib.getDocument(entry.url).promise.then(d => {
+    doc = d;
+    msgBox.classList.add("gone");
+    $("stage").scrollTop = 0;
+    draw(1);
+    syncPager();
+  }).catch(err => {
+    fail("Couldn’t load the document. Check your connection and reload.", err);
+    syncPager();
+  });
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.getAttribute("aria-selected") === "true") return;
+    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected","false"));
+    btn.setAttribute("aria-selected","true");
+    load(btn.dataset.doc);
+    history.replaceState(null, "", "#" + btn.dataset.doc);
+  });
+});
+
+$("prev").addEventListener("click", () => { if (doc && page > 1){ page--; queue(page); syncPager(); } });
+$("next").addEventListener("click", () => { if (doc && page < doc.numPages){ page++; queue(page); syncPager(); } });
+
+/* swipe left / right to turn pages on touch */
+let tx = 0, ty = 0;
+$("stage").addEventListener("touchstart", e => {
+  tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
+}, { passive:true });
+$("stage").addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+    if (dx < 0) $("next").click(); else $("prev").click();
+  }
+}, { passive:true });
+
+/* keyboard paging */
+document.addEventListener("keydown", e => {
+  if (e.target.matches("input,textarea")) return;
+  if (e.key === "ArrowLeft")  $("prev").click();
+  if (e.key === "ArrowRight") $("next").click();
+});
+
+/* re-fit on resize / orientation change */
+let rt;
+const refit = () => { clearTimeout(rt); rt = setTimeout(() => { if (doc) draw(page); }, 180); };
+window.addEventListener("resize", refit);
+window.addEventListener("orientationchange", refit);
+
+/* reading progress across pages */
+const seen = new Set([1]);
+function prog(){
+  const pct = doc ? Math.round((seen.size / doc.numPages) * 100) : 0;
+  $("prog").style.width = pct + "%";
+}
+["prev","next"].forEach(id => $(id).addEventListener("click", () => { seen.add(page); prog(); }));
+$("stage").addEventListener("scroll", () => {
+  if (doc && $("stage").scrollTop > 40) { seen.add(page); prog(); }
+});
+
+/* ---------- reply ---------- */
+const nameEl = $("name"), bodyEl = $("opinion"), sendBtn = $("send"), inline = $("inline");
+const LS = { get k(){ try { return localStorage.getItem("reader_name") || ""; } catch(e){ return ""; } },
+             set k(v){ try { localStorage.setItem("reader_name", v); } catch(e){} } };
+
+nameEl.value = LS.k;
+
+function flash(text, good){
+  inline.textContent = text;
+  inline.className = "msg-inline show " + (good ? "good" : "bad");
+  clearTimeout(flash._t);
+  flash._t = setTimeout(() => inline.classList.remove("show"), 4500);
+}
+
+function validate(){
+  sendBtn.disabled = bodyEl.value.trim().length === 0;
+}
+
+bodyEl.addEventListener("input", () => {
+  $("count").textContent = bodyEl.value.length + " / 900";
+  validate();
+});
+
+nameEl.addEventListener("input", () => { LS.k = nameEl.value.trim(); });
+
+/* one submit in flight; double-tap guard */
+let sending = false;
+sendBtn.addEventListener("click", async () => {
+  if (sending) return;
+  const body = bodyEl.value.trim();
+  if (!body) { bodyEl.focus(); return; }
+
+  sending = true;
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Sending…";
+
+  const name = nameEl.value.trim().slice(0, 40);
+  const when = new Date().toLocaleString();
+
+  /* structured so the owner inbox can parse fields reliably */
+  const payload =
+    "lang=" + curKey + "\n" +
+    "name=" + (name || "Anonymous") + "\n" +
+    "time=" + when + "\n" +
+    "---\n" + body;
+
+  try {
+    const res = await fetch("https://ntfy.sh/" + TOPIC, {
+      method: "POST",
+      headers: { "Title": "Opinion", "Priority": "3", "Tags": "speech_balloon" },
+      body: payload
     });
-  </script>
+    if (!res.ok) throw new Error("relay " + res.status);
+
+    bodyEl.value = "";
+    $("count").textContent = "0 / 900";
+    validate();
+    flash("Sent — thank you.", true);
+  } catch (e) {
+    console.error(e);
+    flash("Couldn’t send. Please try once more.", false);
+    sendBtn.disabled = false;
+  } finally {
+    sending = false;
+    sendBtn.textContent = "Send opinion";
+  }
+});
+
+/* Ctrl/⌘ + Enter sends from the textarea */
+bodyEl.addEventListener("keydown", e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); sendBtn.click(); }
+});
+
+/* ---------- boot ---------- */
+const wanted = (location.hash || "").replace("#","");
+load(DOCS[wanted] ? wanted : "arabic");
+prog();
+</script>
 </body>
 </html>
